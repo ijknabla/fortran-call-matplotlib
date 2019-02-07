@@ -7,9 +7,9 @@ module options
     implicit none
 
     type,bind(C) :: options_t
-        integer(c_size_t) :: resolution(2)
-        real(c_double)    :: top(2)
-        real(c_double)    :: bottom(2)
+        integer(c_int) :: resolution(2)
+        real(c_double) :: top(2)
+        real(c_double) :: bottom(2)
     end type options_t
 
     interface command_argument_t

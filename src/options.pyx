@@ -9,7 +9,7 @@ parser.add_argument("--ni", help="imaginary part resolution",
                     type=int, default=1024)
 
 cdef public struct options_t:
-    size_t resolution[2]
+    int    resolution[2]
     double top[2]
     double bottom[2]
 
@@ -21,5 +21,5 @@ cdef public void parse_args(
     opts.resolution[0] = args.nr
     opts.resolution[1] = args.ni
 
-    opts.top    = (+2, +2)
-    opts.bottom = (-2, -2)
+    opts.top    = (+1.0, +1.5)
+    opts.bottom = (-2.0, -1.5)
