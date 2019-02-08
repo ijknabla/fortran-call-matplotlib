@@ -2,11 +2,8 @@
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--nr", help="real part resolution",
-                    type=int, default=1024)
-
-parser.add_argument("--ni", help="imaginary part resolution",
-                    type=int, default=1024)
+parser.add_argument("--resolution", metavar="N", help="output figure resolution",
+                    type=int, nargs=2, default=[1024, 1024])
 
 cdef public struct options_t:
     int    resolution[2]
@@ -18,8 +15,8 @@ cdef public void parse_args(
 ):
     args = parser.parse_args()
 
-    opts.resolution[0] = args.nr
-    opts.resolution[1] = args.ni
+    for i, reso in enumerate(args.resolution):
+        opts.resolution[i] = reso
 
     opts.top    = (+1.0, +1.5)
     opts.bottom = (-2.0, -1.5)
