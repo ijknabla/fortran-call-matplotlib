@@ -6,7 +6,7 @@ import numpy as np
 
 c_int_p = ctypes.POINTER(ctypes.c_int)
 
-cdef public void draw(int fshape[2], int fconvergence[]):
+cdef public int draw(int fshape[2], int fconvergence[]) except -1:
 
     cdef int[2] cshape = (fshape[1], fshape[0])
 
@@ -17,3 +17,5 @@ cdef public void draw(int fshape[2], int fconvergence[]):
     plt.imshow(convergence[::-1,:])
     plt.colorbar()
     plt.show()
+
+    return 0
