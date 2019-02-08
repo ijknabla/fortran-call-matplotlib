@@ -31,12 +31,12 @@ pyx2c(
   )
 
 add_executable(mandelbrot
-  mandelbrot.f90
   python3.f90
   ${OPTIONS_C}
   options.f90
   ${PLOTTER_C}
   plotter.f90
+  main.f90
   )
 
 target_include_directories(mandelbrot
