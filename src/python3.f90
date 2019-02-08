@@ -47,6 +47,26 @@ module python3
             type(c_ptr),value :: p
         end subroutine pymem_rawfree
 
+        type(c_ptr) function pyerr_occurred() &
+            bind(C, name="PyErr_Occurred")
+            import c_ptr
+        end function pyerr_occurred
+
+        subroutine pyerr_print() &
+            bind(C, name="PyErr_Print")
+        end subroutine pyerr_print
+
     end interface
 
+contains
+
+    subroutine check_python_error()
+        type(c_ptr) :: error_pyobject
+        error_pyobject = pyerr_occurred()
+        if ( c_associated(error_pyobject) ) then
+            call pyerr_print
+            stop 1
+        end if
+    end subroutine check_python_error
+    
 end module python3

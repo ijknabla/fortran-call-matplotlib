@@ -49,11 +49,14 @@ contains
 
         call pyinit_options
 
+        call check_python_error
+
     end subroutine init_options
 
     subroutine parse_args(opts)
         type(options_t),intent(out) :: opts
         call parse_args_cython(opts)
+        call check_python_error
     end subroutine parse_args
 
     type(command_argument_t) function command_argument_initialize() result(self)

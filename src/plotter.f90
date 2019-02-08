@@ -2,6 +2,7 @@
 module plotter
 
     use iso_c_binding
+    use python3
 
     implicit none
 
@@ -24,11 +25,13 @@ contains
 
     subroutine init_plotter()
         call pyinit_plotter
+        call check_python_error
     end subroutine init_plotter
 
     subroutine draw(convergence)
         integer(c_int),intent(in) :: convergence(:,:)
         call draw_cython(shape(convergence), convergence)
+        call check_python_error
     end subroutine draw
 
 end module plotter
