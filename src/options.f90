@@ -29,11 +29,11 @@ module options
             bind(C, name="PyInit_options")
         end subroutine pyinit_options
 
-        subroutine parse_args_cython(opts) &
+        integer(c_int) function parse_args_cython(opts) &
             bind(C, name="parse_args")
-            import options_t
+            import c_int, options_t
             type(options_t),intent(out) :: opts
-        end subroutine parse_args_cython
+        end function parse_args_cython
 
     end interface
 
@@ -55,8 +55,9 @@ contains
 
     subroutine parse_args(opts)
         type(options_t),intent(out) :: opts
-        call parse_args_cython(opts)
-        call check_python_error
+        if ( parse_args_cython(opts) /= 0 ) then
+            call check_python_error
+        end if
     end subroutine parse_args
 
     type(command_argument_t) function command_argument_initialize() result(self)

@@ -36,11 +36,14 @@ cdef public struct options_t:
     double top[2]
     double bottom[2]
 
-cdef public void parse_args(
+cdef public int parse_args(
     options_t* opts
-):
-    args = parser.parse_args()
+) except -1:
 
+    args = parser.parse_args()
+    
     opts.resolution = args.resolution
     opts.top        = args.top
     opts.bottom     = args.bottom
+
+    return 0
