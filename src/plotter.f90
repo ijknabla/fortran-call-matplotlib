@@ -12,9 +12,10 @@ module plotter
             bind(C, name="PyInit_plotter")
         end subroutine pyinit_plotter
 
-        integer(c_int) function draw_cython(shape, convergence) &
+        integer(c_int) function draw_cython(top, bottom, shape, convergence) &
             bind(C, name="draw")
-            import c_int
+            import c_double, c_int
+            real(c_double),intent(in) :: top(2), bottom(2)
             integer(c_int),intent(in) :: shape(2)
             integer(c_int),intent(in) :: convergence(:,:)
         end function draw_cython
@@ -28,9 +29,13 @@ contains
         call check_python_error
     end subroutine init_plotter
 
-    subroutine draw(convergence)
+    subroutine draw(top, bottom, convergence)
+        real(c_double),intent(in) :: top(2), bottom(2)
         integer(c_int),intent(in) :: convergence(:,:)
-        if( draw_cython(shape(convergence), convergence) /= 0) then
+        integer returncode
+        returncode = draw_cython( &
+            top, bottom, shape(convergence), convergence)
+        if( returncode /= 0) then
             call check_python_error
         end if
     end subroutine draw

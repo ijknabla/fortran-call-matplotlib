@@ -22,7 +22,7 @@ program main
         top=opts%top         , bottom=opts%bottom   , &
         convergence = convergence &
         )
-    call draw(convergence)
+    call draw(opts%top, opts%bottom, convergence)
 
     call py_finalize
 
