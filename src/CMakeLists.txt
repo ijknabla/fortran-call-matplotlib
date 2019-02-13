@@ -34,6 +34,7 @@ add_executable(mandelbrot
   python3.f90
   ${OPTIONS_C}
   options.f90
+  logger.f90
   mandelbrot.f90
   ${PLOTTER_C}
   plotter.f90

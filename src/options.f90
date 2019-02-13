@@ -7,6 +7,7 @@ module options
     implicit none
 
     type,bind(C) :: options_t
+        integer(c_int) :: verbose
         integer(c_int) :: resolution(2)
         real(c_double) :: top(2)
         real(c_double) :: bottom(2)

@@ -31,11 +31,14 @@ parser.add_argument("--resolution", metavar="N", help="output figure resolution"
 parser.add_argument("--bottom", type=ComplexAsTuple, default=(-2.0, -1.5))
 parser.add_argument("--top"   , type=ComplexAsTuple, default=(+1.0, +1.5))
 
+parser.add_argument('-v', '--verbose', help='increase verbosity', action='count', default=0)
+
 cdef public struct options_t:
+    int    verbose
     int    resolution[2]
     double top[2]
     double bottom[2]
-
+    
 cdef public int parse_args(
     options_t* opts
 ) except -1:
@@ -45,5 +48,18 @@ cdef public int parse_args(
     opts.resolution = args.resolution
     opts.top        = args.top
     opts.bottom     = args.bottom
+
+    from logging import getLogger, StreamHandler, DEBUG, INFO
+
+    opts.verbose    = args.verbose
+    
+    rootLogger = getLogger()
+    if args.verbose == 1:
+        rootLogger.setLevel(INFO)
+    if args.verbose >= 2:
+        rootLogger.setLevel(DEBUG)
+
+    handler    = StreamHandler()
+    rootLogger.addHandler(handler)
 
     return 0

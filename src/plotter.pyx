@@ -4,6 +4,10 @@ from matplotlib import pyplot as plt
 import ctypes
 import numpy as np
 
+from logging import getLogger, DEBUG
+
+logger = getLogger(__name__)
+
 c_int_p = ctypes.POINTER(ctypes.c_int)
 
 cdef public int draw(
@@ -20,6 +24,9 @@ cdef public int draw(
 
     convergence = np.ctypeslib.as_array(ctypes_ptr, cshape)
 
+    logger.debug(f"image size {convergence.shape}")
+    logger.info("show image")
+    
     plt.imshow(
         convergence,
         origin='lower',

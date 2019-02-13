@@ -2,6 +2,7 @@
 program main
 
     use python3
+    use logger, only : set_logger_level => set_level
     use options
     use mandelbrot_mod
     use plotter
@@ -17,6 +18,7 @@ program main
     call init_plotter
 
     call parse_args(opts)
+    call set_logger_level(opts%verbose)
     call mandelbrot( &
         nx=opts%resolution(1), ny=opts%resolution(2), &
         top=opts%top         , bottom=opts%bottom   , &

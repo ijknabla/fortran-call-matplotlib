@@ -1,6 +1,7 @@
 
 module mandelbrot_mod
 
+    use logger
     use iso_c_binding
     
     implicit none
@@ -29,7 +30,9 @@ contains
         forall (i=1:nx, j=1:ny) &
             c(i, j) = cmplx(real_part(i),imag_part(j), kind=8)
 
+        call info("begin mandelbrot calculation")
         convergence(:,:) = iteration(c(:,:))
+        call info("end   mandelbrot calculation")
 
     contains
 
