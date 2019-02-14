@@ -47,3 +47,13 @@ target_include_directories(mandelbrot
 
 target_link_libraries(mandelbrot
   ${PYTHON_LIBRARY})
+
+if(OpenMP_FOUND)
+  target_compile_options(mandelbrot
+    PRIVATE
+    ${OpenMP_Fortran_FLAGS}
+    )
+  target_link_libraries(mandelbrot
+    ${OpenMP_Fortran_LIB_NAMES}
+  )
+endif()

@@ -5,6 +5,7 @@ enable_language(Fortran)
 
 find_package(PythonInterp 3 REQUIRED)
 find_package(PythonLibs   3 REQUIRED)
+find_package(OpenMP)
 
 add_subdirectory(src)
 
