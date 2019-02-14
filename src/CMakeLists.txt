@@ -57,3 +57,8 @@ if(OpenMP_FOUND)
     ${OpenMP_Fortran_LIB_NAMES}
   )
 endif()
+
+set_target_properties(mandelbrot
+  PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
+  )
