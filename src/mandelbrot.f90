@@ -7,6 +7,7 @@ module mandelbrot_mod
     implicit none
 
     integer,parameter :: mdb_complex_kind = 4
+    integer,parameter :: max_iteration    = 252
 
 contains
 
@@ -51,7 +52,7 @@ contains
             complex(kind=mdb_complex_kind),intent(in) :: c
             complex(kind=mdb_complex_kind)            :: z
             z = (0.d0, 0.d0)
-            do iteration = 1, 128
+            do iteration = 1, max_iteration
                 z = z * z + c
                 if (abs(z) > 2) return
             end do
