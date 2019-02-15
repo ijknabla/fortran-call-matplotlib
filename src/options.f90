@@ -6,12 +6,20 @@ module options
 
     implicit none
 
-    type,bind(C) :: options_t
+    type options_t
+        integer(c_int)                  :: verbose
+        integer(c_int)                  :: resolution(2)
+        real(c_double)                  :: top(2)
+        real(c_double)                  :: bottom(2)
+        character(:,c_char),allocatable :: output_path
+    end type options_t
+
+    type,bind(C) :: numeric_options_t
         integer(c_int) :: verbose
         integer(c_int) :: resolution(2)
         real(c_double) :: top(2)
         real(c_double) :: bottom(2)
-    end type options_t
+    end type numeric_options_t
 
     interface command_argument_t
         module procedure :: command_argument_initialize
@@ -30,11 +38,22 @@ module options
             bind(C, name="PyInit_options")
         end subroutine pyinit_options
 
-        integer(c_int) function parse_args_cython(opts) &
-            bind(C, name="parse_args")
-            import c_int, options_t
-            type(options_t),intent(out) :: opts
-        end function parse_args_cython
+        integer(c_int) function get_numeric_options(opts) bind(C)
+            import c_int, numeric_options_t
+            type(numeric_options_t),intent(out) :: opts
+        end function get_numeric_options
+
+        integer(c_int) function get_output_path_length(output_path_length) bind(C)
+            import c_int
+            integer(c_int),intent(out) :: output_path_length
+        end function get_output_path_length
+
+        integer(c_int) function get_output_path( &
+            output_path_length, output_path) bind(C)
+            import c_int, c_ptr
+            integer(c_int),value :: output_path_length
+            type(c_ptr)   ,value :: output_path
+        end function get_output_path
 
     end interface
 
@@ -55,10 +74,33 @@ contains
     end subroutine init_options
 
     subroutine parse_args(opts)
-        type(options_t),intent(out) :: opts
-        if ( parse_args_cython(opts) /= 0 ) then
+        type(options_t),target,intent(out) :: opts
+        type(numeric_options_t)     :: numeric_opts
+        integer(c_int) :: output_path_length
+
+        if ( get_numeric_options(numeric_opts) /= 0 ) then
             call check_python_error
         end if
+
+        opts%verbose    = numeric_opts%verbose
+        opts%resolution = numeric_opts%resolution
+        opts%top        = numeric_opts%top
+        opts%bottom     = numeric_opts%bottom
+
+        if ( get_output_path_length(output_path_length) /= 0 ) then
+            call check_python_error
+        end if
+
+        allocate( character(output_path_length,c_char) :: opts%output_path )
+
+        if ( &
+            get_output_path(        &
+            len(opts%output_path),  &
+            c_loc(opts%output_path) &
+            ) /= 0) then
+            call check_python_error
+        end if
+
     end subroutine parse_args
 
     type(command_argument_t) function command_argument_initialize() result(self)
