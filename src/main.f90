@@ -24,7 +24,10 @@ program main
         top=opts%top         , bottom=opts%bottom   , &
         convergence = convergence &
         )
-    call draw(opts%top, opts%bottom, convergence)
+    call draw( &
+        opts%output_path, &
+        opts%top, opts%bottom, convergence &
+        )
 
     call py_finalize
 

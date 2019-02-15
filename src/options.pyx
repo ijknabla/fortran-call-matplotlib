@@ -23,8 +23,6 @@ def ComplexAsTuple(arg):
         )
         raise ValueError(message) from originalError
 
-from pathlib import Path
-
 parser = argparse.ArgumentParser()
 parser.add_argument("--resolution", metavar="N", help="output figure resolution",
                     type=PositiveInteger, nargs=2, default=[1024, 1024])
@@ -34,7 +32,7 @@ parser.add_argument("--top"   , type=ComplexAsTuple, default=(+1.0, +1.5))
 
 parser.add_argument('-v', '--verbose', help='increase verbosity', action='count', default=0)
 
-parser.add_argument('-o', '--output', type=Path, nargs="?", default='')
+parser.add_argument('-o', '--output', default='') # output file path
 
 args = parser.parse_args()
 

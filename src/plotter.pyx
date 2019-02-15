@@ -12,6 +12,7 @@ logger = getLogger(__name__)
 c_int_p = ctypes.POINTER(ctypes.c_int)
 
 cdef public int draw(
+    unsigned char * output_path,
     double top[2], double bottom[2],
     int fshape[2], int fconvergence[]
 ) except -1:
@@ -58,6 +59,13 @@ cdef public int draw(
             cbottom.imag, ctop.imag,
         )
     )
-    plt.show()
+
+    b_output_path = ctypes.c_char_p(<long> output_path).value
+    u_output_path = b_output_path.decode()
+
+    if not u_output_path:
+        plt.show()
+    else:
+        plt.savefig(u_output_path)
 
     return 0
