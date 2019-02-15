@@ -33,6 +33,8 @@ parser.add_argument("--top"   , type=ComplexAsTuple, default=(+1.0, +1.5))
 
 parser.add_argument('-v', '--verbose', help='increase verbosity', action='count', default=0)
 
+args = parser.parse_args()
+
 cdef public struct options_t:
     int    verbose
     int    resolution[2]
@@ -43,7 +45,7 @@ cdef public int parse_args(
     options_t* opts
 ) except -1:
 
-    args = parser.parse_args()
+    global args
     
     opts.resolution = args.resolution
     opts.top        = args.top
