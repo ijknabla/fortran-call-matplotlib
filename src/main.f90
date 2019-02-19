@@ -9,13 +9,26 @@ program main
 
     implicit none
 
+    interface
+        integer(c_int) function append_inittab() &
+            bind(C, name="appendInittab")
+            import c_int
+        end function append_inittab
+
+        integer(c_int) function import_modules() &
+            bind(C, name="import_modules")
+            import c_int
+        end function import_modules
+    end interface
+
     integer(c_int),allocatable :: convergence(:,:)
 
     type(options_t) :: opts
 
+    if( append_inittab() /= 0 ) call check_python_error
     call py_initialize
-    call init_options
-    call init_plotter
+    call set_argv
+    if( import_modules() /= 0 ) call check_python_error
 
     call parse_args(opts)
     call set_logger_level(opts%verbose)

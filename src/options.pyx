@@ -42,7 +42,7 @@ cdef public struct numeric_options_t:
     double top[2]
     double bottom[2]
 
-cdef public int get_numeric_options(
+cdef public api int get_numeric_options(
     numeric_options_t* opts
 ) except -1:
 
@@ -67,7 +67,7 @@ cdef public int get_numeric_options(
 
     return 0
 
-cdef public int get_output_path_length(
+cdef public api int get_output_path_length(
     int * output_path_length
 ) except -1:
 
@@ -77,7 +77,7 @@ cdef public int get_output_path_length(
     
     return 0
 
-cdef public int get_output_path(
+cdef public api int get_output_path(
     int length, unsigned char* output_path
 ) except -1:
 

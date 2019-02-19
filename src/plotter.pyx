@@ -11,7 +11,7 @@ logger = getLogger(__name__)
 
 c_int_p = ctypes.POINTER(ctypes.c_int)
 
-cdef public int draw(
+cdef public api int draw(
     unsigned char * output_path,
     double top[2], double bottom[2],
     int fshape[2], int fconvergence[]

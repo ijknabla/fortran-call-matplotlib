@@ -32,6 +32,7 @@ pyx2c(
 
 add_executable(mandelbrot
   python3.f90
+  python_modules.c
   ${OPTIONS_C}
   options.f90
   logger.f90
@@ -43,10 +44,13 @@ add_executable(mandelbrot
 
 target_include_directories(mandelbrot
   PRIVATE
-  ${PYTHON_INCLUDE_DIR})
+  ${PYTHON_INCLUDE_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}
+  )
 
 target_link_libraries(mandelbrot
-  ${PYTHON_LIBRARY})
+  ${PYTHON_LIBRARY}
+  )
 
 if(OpenMP_FOUND)
   target_compile_options(mandelbrot

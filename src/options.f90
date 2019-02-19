@@ -59,19 +59,15 @@ module options
 
 contains
 
-    subroutine init_options()
+    subroutine set_argv()
 
         type(command_argument_t) :: cmd
 
         cmd = command_argument_t()
 
-        call pysys_setargvex( size(cmd%wchar_argv), cmd%wchar_argv, 0 )
+        call pysys_setargv( size(cmd%wchar_argv), cmd%wchar_argv)
 
-        call pyinit_options
-
-        call check_python_error
-
-    end subroutine init_options
+    end subroutine set_argv
 
     subroutine parse_args(opts)
         type(options_t),target,intent(out) :: opts
