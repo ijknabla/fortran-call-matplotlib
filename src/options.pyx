@@ -1,4 +1,58 @@
 
+from cpython.mem cimport PyMem_Malloc, PyMem_Free
+
+class CommandArgumentCallbackError(RuntimeError):
+
+    @classmethod
+    def check(cls, returncode):
+        if returncode != 0:
+            raise cls(returncode)
+
+cdef argv_from_callbacks(
+    ArgCount_GetterFunc  argc_getter,
+    ArgLength_GetterFunc arg_len_getter,
+    Argument_GetterFunc  arg_getter,
+):
+
+    def get_argument(int iarg):
+        cdef int   arg_len
+        cdef char* arg = NULL
+
+        CommandArgumentCallbackError.check(
+            arg_len_getter(iarg, &arg_len)
+        )
+        
+        try:
+            arg = <char*> PyMem_Malloc(
+                sizeof(char*) * arg_len
+            )
+            CommandArgumentCallbackError.check(
+                arg_getter(iarg, arg_len, arg)
+            )
+            return arg[:arg_len].decode()
+            
+        finally:
+            PyMem_Free(arg)
+
+    cdef int   argc
+    CommandArgumentCallbackError.check(
+        argc_getter(&argc) )
+
+    return list(map(get_argument, range(argc+1)))
+
+cdef public api int set_argv_from_callbacks(
+    ArgCount_GetterFunc  argc_getter,
+    ArgLength_GetterFunc arg_len_getter,
+    Argument_GetterFunc  arg_getter,
+) except -1:
+    import sys
+
+    sys.argv = argv_from_callbacks(
+        argc_getter,
+        arg_len_getter,
+        arg_getter,
+    )
+
 import argparse
 
 def PositiveInteger(arg):
