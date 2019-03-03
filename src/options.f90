@@ -57,7 +57,48 @@ module options
 
     end interface
 
-contains
+  contains
+
+    integer(c_int) function argc_getter(argc) &
+         result(ierr) bind(C)
+
+      integer(c_int),intent(out) :: argc
+      
+      ierr = 0
+      argc = command_argument_count()
+      return
+      
+    end function argc_getter
+
+    integer(c_int) function arg_len_getter(iarg, arg_len) result(ierr) &
+         bind(C)
+
+      integer(c_int),value       :: iarg
+      integer(c_int),intent(out) :: arg_len
+
+      call get_command_argument( &
+           iarg, length=arg_len, status=ierr)
+      return
+
+    end function arg_len_getter
+
+    integer(c_int) function arg_getter(iarg, arg_len, arg) result(ierr) &
+         bind(C)
+
+      integer(c_int),value :: iarg
+      integer(c_int),value :: arg_len
+      type(c_ptr)   ,value :: arg
+
+      character(arg_len,c_char),pointer :: farg
+
+      call c_f_pointer(arg, farg)
+
+      call get_command_argument( &
+           iarg, value=farg, status=ierr)
+
+      return
+      
+    end function arg_getter
 
     subroutine set_argv()
 
