@@ -53,8 +53,6 @@ cdef public api int set_argv_from_callbacks(
         arg_getter,
     )
 
-import argparse
-
 def PositiveInteger(arg):
     result = int(arg)
     if not 0 < result:
@@ -77,30 +75,40 @@ def ComplexAsTuple(arg):
         )
         raise ValueError(message) from originalError
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--resolution", metavar="N", help="output figure resolution",
-                    type=PositiveInteger, nargs=2, default=[1024, 1024])
-
-parser.add_argument("--bottom", type=ComplexAsTuple, default=(-2.0, -1.5))
-parser.add_argument("--top"   , type=ComplexAsTuple, default=(+1.0, +1.5))
-
-parser.add_argument('-v', '--verbose', help='increase verbosity', action='count', default=0)
-
-parser.add_argument('-o', '--output', default='') # output file path
-
-args = parser.parse_args()
-
 cdef public struct numeric_options_t:
     int    verbose
     int    resolution[2]
     double top[2]
     double bottom[2]
 
+_args = None
+def getArgs():
+    global _args
+
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--resolution", metavar="N", help="output figure resolution",
+                        type=PositiveInteger, nargs=2, default=[1024, 1024])
+
+    parser.add_argument("--bottom", type=ComplexAsTuple, default=(-2.0, -1.5))
+    parser.add_argument("--top"   , type=ComplexAsTuple, default=(+1.0, +1.5))
+
+    parser.add_argument('-v', '--verbose', help='increase verbosity', action='count', default=0)
+
+    parser.add_argument('-o', '--output', default='') # output file path
+
+    if _args is None:
+        _args = parser.parse_args()
+
+    return _args
+
+
 cdef public api int get_numeric_options(
     numeric_options_t* opts
 ) except -1:
 
-    global args
+    args = getArgs()
     
     opts.resolution = args.resolution
     opts.top        = args.top
@@ -125,6 +133,8 @@ cdef public api int get_output_path_length(
     int * output_path_length
 ) except -1:
 
+    args = getArgs()
+
     encoded_output_path = str(args.output).encode("utf-8")
 
     output_path_length[0] = len(encoded_output_path)
@@ -134,6 +144,8 @@ cdef public api int get_output_path_length(
 cdef public api int get_output_path(
     int length, unsigned char* output_path
 ) except -1:
+
+    args = getArgs()
 
     encoded_output_path = str(args.output).encode()
 

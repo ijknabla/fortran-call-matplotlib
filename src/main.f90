@@ -27,9 +27,9 @@ program main
 
     if( append_inittab() /= 0 ) call check_python_error
     call py_initialize
-    call set_argv
     if( import_modules() /= 0 ) call check_python_error
-
+    
+    call set_argv
     call parse_args(opts)
     call set_logger_level(opts%verbose)
     call mandelbrot( &
