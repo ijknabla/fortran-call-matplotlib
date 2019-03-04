@@ -155,3 +155,36 @@ cdef public api int get_output_path(
         output_path[i] = c
     
     return 0
+
+cdef public api int parse_args(
+    options_t* opts,
+) except -1 :
+
+    args = getArgs()
+
+    output_path     = args.output.encode("utf-8")
+    len_output_path = len(output_path)
+
+    opts.verbose         = args.verbose
+    opts.resolution[:]   = args.resolution[:]
+    opts.top[:]          = args.top[:]
+    opts.bottom[:]       = args.bottom[:]
+
+    if opts.output_path != NULL:
+        raise RuntimeError(
+            f"opts->output_path != NULL"
+        )
+    
+    opts.output_path_len = len_output_path
+    opts.output_path = <unsigned char*> PyMem_Malloc(
+        sizeof(unsigned char*) * len_output_path )
+
+    for i in range(len_output_path):
+        opts.output_path[i] = output_path[i]
+
+cdef public api int finalize_options_t(
+    options_t* opts,
+) except -1:
+
+    PyMem_Free(opts.output_path)
+    opts.output_path = NULL

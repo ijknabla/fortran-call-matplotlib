@@ -14,6 +14,23 @@ module options
         character(:,c_char),allocatable :: output_path
     end type options_t
 
+    type,bind(C) :: c_options_t
+        integer(c_int) :: verbose         = 0
+        integer(c_int) :: resolution(2)   = (/  0,  0 /)
+        real(c_double) :: top(2)          = (/ .0, .0 /)
+        real(c_double) :: bottom(2)       = (/ .0, .0 /)
+        integer(c_int) :: output_path_len = 0
+        type(c_ptr)    :: output_path     = C_NULL_PTR
+    end type c_options_t
+
+    type auto_c_options_t
+        type(c_options_t) :: contents
+    contains
+        procedure :: parse_args => &
+            auto_c_options_method_parse_args
+        final     :: auto_c_options_method_finalize
+    end type auto_c_options_t
+
     type,bind(C) :: numeric_options_t
         integer(c_int) :: verbose
         integer(c_int) :: resolution(2)
@@ -113,10 +130,48 @@ contains
 
     end subroutine set_argv
 
+    subroutine auto_c_options_method_parse_args(opts)
+        class(auto_c_options_t),intent(inout) :: opts
+        interface
+            integer(c_int) function parse_args(opts) &
+                bind(C)
+                import c_int, c_options_t
+                type(c_options_t),intent(inout) :: opts
+            end function parse_args
+        end interface
+
+        if ( parse_args(opts%contents) /= 0 ) then
+            call check_python_error
+        end if
+        
+    end subroutine auto_c_options_method_parse_args
+    
+    subroutine auto_c_options_method_finalize(self)
+        type(auto_c_options_t),intent(inout) :: self
+
+        interface
+            integer(c_int) function finalize_options_t(opts) &
+                bind(C)
+                import c_int, c_options_t
+                type(c_options_t),intent(inout) :: opts
+            end function finalize_options_t
+        end interface
+
+        if (finalize_options_t(self%contents) /= 0) then
+            call check_python_error
+        end if
+
+    end subroutine auto_c_options_method_finalize
+
     subroutine parse_args(opts)
         type(options_t),target,intent(out) :: opts
         type(numeric_options_t)     :: numeric_opts
         integer(c_int) :: output_path_length
+
+        type(auto_c_options_t) :: opts2
+
+        call opts2%parse_args
+
 
         if ( get_numeric_options(numeric_opts) /= 0 ) then
             call check_python_error
