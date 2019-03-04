@@ -31,35 +31,11 @@ module options
         final     :: auto_c_options_method_finalize
     end type auto_c_options_t
 
-    type,bind(C) :: numeric_options_t
-        integer(c_int) :: verbose
-        integer(c_int) :: resolution(2)
-        real(c_double) :: top(2)
-        real(c_double) :: bottom(2)
-    end type numeric_options_t
-
     interface
 
         subroutine pyinit_options() &
             bind(C, name="PyInit_options")
         end subroutine pyinit_options
-
-        integer(c_int) function get_numeric_options(opts) bind(C)
-            import c_int, numeric_options_t
-            type(numeric_options_t),intent(out) :: opts
-        end function get_numeric_options
-
-        integer(c_int) function get_output_path_length(output_path_length) bind(C)
-            import c_int
-            integer(c_int),intent(out) :: output_path_length
-        end function get_output_path_length
-
-        integer(c_int) function get_output_path( &
-            output_path_length, output_path) bind(C)
-            import c_int, c_ptr
-            integer(c_int),value :: output_path_length
-            type(c_ptr)   ,value :: output_path
-        end function get_output_path
 
         integer(c_int) function set_argv_from_callbacks( &
             argv_getter, arg_len_getter, arg_getter ) bind(C)
