@@ -163,38 +163,29 @@ contains
 
     end subroutine auto_c_options_method_finalize
 
-    subroutine parse_args(opts)
-        type(options_t),target,intent(out) :: opts
-        type(numeric_options_t)     :: numeric_opts
-        integer(c_int) :: output_path_length
+    subroutine parse_args(f_opts)
+        type(options_t),intent(out) :: f_opts
+        type(auto_c_options_t)      :: auto_c_opts
 
-        type(auto_c_options_t) :: opts2
+        call auto_c_opts%parse_args
+        call assign(f_opts, auto_c_opts%contents)
 
-        call opts2%parse_args
+    contains
 
+        subroutine assign(f_opts, c_opts)
+            type(  options_t),intent(out) :: f_opts
+            type(c_options_t),intent(in)  :: c_opts
+            character(c_opts%output_path_len,c_char),pointer :: output_path
 
-        if ( get_numeric_options(numeric_opts) /= 0 ) then
-            call check_python_error
-        end if
+            f_opts%verbose    = c_opts%verbose
+            f_opts%resolution = c_opts%resolution
+            f_opts%top        = c_opts%top
+            f_opts%bottom     = c_opts%bottom
 
-        opts%verbose    = numeric_opts%verbose
-        opts%resolution = numeric_opts%resolution
-        opts%top        = numeric_opts%top
-        opts%bottom     = numeric_opts%bottom
+            call c_f_pointer(c_opts%output_path, output_path)
+            f_opts%output_path = output_path
 
-        if ( get_output_path_length(output_path_length) /= 0 ) then
-            call check_python_error
-        end if
-
-        allocate( character(output_path_length,c_char) :: opts%output_path )
-
-        if ( &
-            get_output_path(        &
-            len(opts%output_path),  &
-            c_loc(opts%output_path) &
-            ) /= 0) then
-            call check_python_error
-        end if
+        end subroutine assign
 
     end subroutine parse_args
 
