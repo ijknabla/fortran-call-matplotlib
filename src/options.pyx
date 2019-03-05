@@ -75,9 +75,7 @@ def ComplexAsTuple(arg):
         )
         raise ValueError(message) from originalError
 
-_args = None
-def getArgs():
-    global _args
+def getParser():
 
     import argparse
 
@@ -92,16 +90,14 @@ def getArgs():
 
     parser.add_argument('-o', '--output', default='') # output file path
 
-    if _args is None:
-        _args = parser.parse_args()
-
-    return _args
+    return parser
 
 cdef public api int parse_args(
     options_t* opts,
 ) except -1 :
 
-    args = getArgs()
+    parser = getParser()
+    args   = parser.parse_args()
 
     output_path     = args.output.encode("utf-8")
     len_output_path = len(output_path)
