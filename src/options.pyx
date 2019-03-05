@@ -21,7 +21,7 @@ cdef argv_from_callbacks(
         CommandArgumentCallbackError.check(
             arg_len_getter(iarg, &arg_len)
         )
-        
+
         try:
             arg = <char*> PyMem_Malloc(
                 sizeof(char*) * arg_len
@@ -30,7 +30,7 @@ cdef argv_from_callbacks(
                 arg_getter(iarg, arg_len, arg)
             )
             return arg[:arg_len].decode()
-            
+
         finally:
             PyMem_Free(arg)
 
@@ -115,7 +115,7 @@ cdef public api int parse_args(
         raise RuntimeError(
             f"opts->output_path != NULL"
         )
-    
+
     opts.output_path_len = len_output_path
     opts.output_path = <unsigned char*> PyMem_Malloc(
         sizeof(unsigned char*) * len_output_path )
