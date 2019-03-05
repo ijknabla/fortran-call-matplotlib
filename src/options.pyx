@@ -75,12 +75,6 @@ def ComplexAsTuple(arg):
         )
         raise ValueError(message) from originalError
 
-cdef public struct numeric_options_t:
-    int    verbose
-    int    resolution[2]
-    double top[2]
-    double bottom[2]
-
 _args = None
 def getArgs():
     global _args
@@ -102,59 +96,6 @@ def getArgs():
         _args = parser.parse_args()
 
     return _args
-
-
-cdef public api int get_numeric_options(
-    numeric_options_t* opts
-) except -1:
-
-    args = getArgs()
-    
-    opts.resolution = args.resolution
-    opts.top        = args.top
-    opts.bottom     = args.bottom
-
-    from logging import getLogger, StreamHandler, DEBUG, INFO
-
-    opts.verbose    = args.verbose
-    
-    rootLogger = getLogger()
-    if args.verbose == 1:
-        rootLogger.setLevel(INFO)
-    if args.verbose >= 2:
-        rootLogger.setLevel(DEBUG)
-
-    handler    = StreamHandler()
-    rootLogger.addHandler(handler)
-
-    return 0
-
-cdef public api int get_output_path_length(
-    int * output_path_length
-) except -1:
-
-    args = getArgs()
-
-    encoded_output_path = str(args.output).encode("utf-8")
-
-    output_path_length[0] = len(encoded_output_path)
-    
-    return 0
-
-cdef public api int get_output_path(
-    int length, unsigned char* output_path
-) except -1:
-
-    args = getArgs()
-
-    encoded_output_path = str(args.output).encode()
-
-    assert len(encoded_output_path) == length
-
-    for i, c in enumerate(encoded_output_path):
-        output_path[i] = c
-    
-    return 0
 
 cdef public api int parse_args(
     options_t* opts,
