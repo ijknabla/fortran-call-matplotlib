@@ -7,7 +7,6 @@ cdef public api:
     struct options_t:
         int             verbose
         int             resolution[2]
-        double          top[2]
-        double          bottom[2]
+        double          extent[4]
         int             output_path_len
         unsigned char*  output_path

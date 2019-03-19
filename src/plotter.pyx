@@ -13,15 +13,12 @@ c_int_p = ctypes.POINTER(ctypes.c_int)
 
 cdef public api int draw(
     unsigned char * output_path,
-    double top[2], double bottom[2],
+    double extent[4],
     int fshape[2], int fconvergence[]
 ) except -1:
 
     cdef int[2] cshape = (fshape[1], fshape[0])
 
-    ctop    = complex(top   [0], top   [1])
-    cbottom = complex(bottom[0], bottom[1])
-    
     ctypes_ptr = c_int_p.from_address(<long> fconvergence)
 
     convergence = np.ctypeslib.as_array(ctypes_ptr, cshape)
@@ -40,7 +37,7 @@ cdef public api int draw(
 
     def normalize(iteration):
         return (maxIteration - iteration) / (maxIteration - minIteration)
-    
+
     # 発散した部分はcolormapに応じて色をつける。
     colormap = colormaps.gnuplot2
     image[diverged_mask,:3] = (
@@ -50,14 +47,11 @@ cdef public api int draw(
 
     logger.debug(f"image size {image.shape[:-1]}")
     logger.info("show image")
-    
+
     plt.imshow(
         image,
         origin='lower',
-        extent=(
-            cbottom.real, ctop.real,
-            cbottom.imag, ctop.imag,
-        )
+        extent= [extent[i] for i in range(4) ],
     )
 
     b_output_path = ctypes.c_char_p(<long> output_path).value

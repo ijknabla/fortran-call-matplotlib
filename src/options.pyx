@@ -79,16 +79,25 @@ def getParser():
 
     import argparse
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--resolution", metavar="N", help="output figure resolution",
-                        type=PositiveInteger, nargs=2, default=[1024, 1024])
+    parser = argparse.ArgumentParser(
+        prog="mandelbrot"
+    )
 
-    parser.add_argument("--bottom", type=ComplexAsTuple, default=(-2.0, -1.5))
-    parser.add_argument("--top"   , type=ComplexAsTuple, default=(+1.0, +1.5))
+    parser.add_argument("--resolution", metavar=("ReReso", "ImReso"),
+                        help = "complex plane resolution",
+                        type=PositiveInteger, nargs=2, default=(1024, 1024))
 
-    parser.add_argument('-v', '--verbose', help='increase verbosity', action='count', default=0)
+    parser.add_argument("--extent", metavar=("ReMIN", "ReMAX", "ImMIN", "ImMax"),
+                        help = "complex plane extent",
+                        type=float, nargs=4, default=(-2.0, +1.0, -1.5, +1.5))
 
-    parser.add_argument('-o', '--output', default='') # output file path
+    parser.add_argument('-v', '--verbose',
+                        help = 'increase verbosity',
+                        action='count', default=0)
+
+    parser.add_argument('-o', '--output',
+                        help = "output file path",
+                        default='')
 
     return parser
 
@@ -104,8 +113,7 @@ cdef public api int parse_args(
 
     opts.verbose         = args.verbose
     opts.resolution[:]   = args.resolution[:]
-    opts.top[:]          = args.top[:]
-    opts.bottom[:]       = args.bottom[:]
+    opts.extent[:]       = args.extent[:]
 
     if opts.output_path != NULL:
         raise RuntimeError(

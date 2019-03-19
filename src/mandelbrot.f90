@@ -11,13 +11,14 @@ module mandelbrot_mod
 
 contains
 
-    subroutine mandelbrot(nx, ny, top, bottom, convergence)
+    subroutine mandelbrot(nx, ny, extent, convergence)
         integer,intent(in) :: nx
         integer,intent(in) :: ny
-        real(c_double)     :: top(2)
-        real(c_double)     :: bottom(2)
+        real(c_double),intent(in) :: extent(4)
 
         integer(c_int),allocatable,intent(out) :: convergence(:,:)
+
+        real(c_double) :: re_min, re_max, im_min, im_max
 
         complex(kind=mdb_complex_kind) :: c(nx,ny)
         real(kind=mdb_complex_kind)    :: real_part(nx)
@@ -29,9 +30,14 @@ contains
 
         allocate( convergence(nx, ny) )
 
+        re_min = extent(1)
+        re_max = extent(2)
+        im_min = extent(3)
+        im_max = extent(4)
+
         !$omp parallel
-        real_part(:) = (/ (i * top(1) + (nx-1-i) * bottom(1), i=0,nx-1) /) / (nx-1)
-        imag_part(:) = (/ (j * top(2) + (ny-1-j) * bottom(2), j=0,ny-1) /) / (ny-1)
+        real_part(:) = (/ (i * re_max + (nx-1-i) * re_min, i=0,nx-1) /) / (nx-1)
+        imag_part(:) = (/ (j * im_max + (ny-1-j) * im_min, j=0,ny-1) /) / (ny-1)
 
         !$omp workshare
         forall (i=1:nx, j=1:ny) &
