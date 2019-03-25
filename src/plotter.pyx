@@ -50,8 +50,8 @@ cdef public api int draw(
 
     plt.imshow(
         image,
-        origin='lower',
-        extent= [extent[i] for i in range(4) ],
+        origin = 'lower',
+        extent = tuple(extent[i] for i in range(4)),
     )
 
     b_output_path = ctypes.c_char_p(<long> output_path).value

@@ -34,13 +34,12 @@ program main
     call set_logger_level(opts%verbose)
     call mandelbrot( &
         nx=opts%resolution(1), ny=opts%resolution(2), &
-        extent = opts%extent, &
-        convergence = convergence &
+        extent = opts%extent,                         &
+        convergence = convergence                     &
         )
     call draw( &
-        opts%output_path, &
-        opts%extent, &
-        convergence  &
+        opts%output_path,        &
+        opts%extent, convergence &
         )
 
     call py_finalize

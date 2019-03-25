@@ -18,22 +18,22 @@ contains
 
         integer(c_int),allocatable,intent(out) :: convergence(:,:)
 
-        real(c_double) :: re_min, re_max, im_min, im_max
-
         complex(kind=mdb_complex_kind) :: c(nx,ny)
         real(kind=mdb_complex_kind)    :: real_part(nx)
         real(kind=mdb_complex_kind)    :: imag_part(ny)
 
+        real(c_double) :: re_min, re_max, im_min, im_max
+
         integer i, j
-
-        call info("begin mandelbrot calculation")
-
-        allocate( convergence(nx, ny) )
 
         re_min = extent(1)
         re_max = extent(2)
         im_min = extent(3)
         im_max = extent(4)
+
+        call info("begin mandelbrot calculation")
+
+        allocate( convergence(nx, ny) )
 
         !$omp parallel
         real_part(:) = (/ (i * re_max + (nx-1-i) * re_min, i=0,nx-1) /) / (nx-1)

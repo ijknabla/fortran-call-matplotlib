@@ -1,4 +1,7 @@
 
+import re
+import sys
+import argparse
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
 
 class CommandArgumentCallbackError(RuntimeError):
@@ -45,7 +48,6 @@ cdef public api int set_argv_from_callbacks(
     ArgLength_GetterFunc arg_len_getter,
     Argument_GetterFunc  arg_getter,
 ) except -1:
-    import sys
 
     sys.argv = argv_from_callbacks(
         argc_getter,
@@ -53,51 +55,106 @@ cdef public api int set_argv_from_callbacks(
         arg_getter,
     )
 
-def PositiveInteger(arg):
+def positiveInteger(arg):
     result = int(arg)
     if not 0 < result:
         raise ValueError(f"argument must be positive got {arg!r}")
     return result
 
-def ComplexAsTuple(arg):
-    def to_complex(arg):
-        try:
-            return complex(arg)
-        except ValueError:
-            return complex(*eval(arg))
+def commandLineFloat(arg):
+    REPLACE_TO_MINUS = [
+        '_', 'm', 'M'
+    ] # -> '-'
 
-    try:
-        complexValue = to_complex(arg)
-        return complexValue.real, complexValue.imag
-    except ValueError as originalError:
-        message = (
-            "argumant must be complex or Tuple[float, float] got {arg!r}"
+    REPLACE_TO_PLUS = [
+        'p', 'P'
+    ] # -> '+'
+
+    def characters2pattern(chars):
+        return "^\s*({})".format('|'.join(chars))
+
+    minusPattern = characters2pattern(REPLACE_TO_MINUS)
+    plusPattern  = characters2pattern(REPLACE_TO_PLUS )
+
+    arg = re.sub(minusPattern, '-', arg)
+    arg = re.sub(plusPattern , '+', arg)
+
+    return float(arg)
+
+
+
+from collections import namedtuple
+
+ComplexPlaneExtentBase = namedtuple(
+    "ComplexPlaneExtentBase",
+    'realMin, realMax, imagMin, imagMax'
+)
+
+class ComplexPlaneExtent(ComplexPlaneExtentBase):
+    def __new__(cls, realMin, realMax, imagMin, imagMax):
+
+        if not realMin < realMax:
+            raise ValueError(
+                f"realMin(= {realMin}) must be larger than realMax(= {realMax})")
+        if not imagMin < imagMax:
+            raise ValueError(
+                f"imagMin(= {imagMin}) must be larger than imagMax(= {imagMax})")
+
+        self = super().__new__(
+            cls, realMin, realMax, imagMin, imagMax
         )
-        raise ValueError(message) from originalError
+        return self
+
+class ComplexPlaneExtentAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        try:
+            extent = ComplexPlaneExtent(*values)
+        except ValueError as valueError:
+            raise argparse.ArgumentError(self, str(valueError))
+        setattr(namespace, self.dest, extent)
+
+
 
 def getParser():
 
-    import argparse
-
     parser = argparse.ArgumentParser(
-        prog="mandelbrot"
+        prog = "mandelbrot",
+        description = """\
+Draw mandelbrot set""",
+        epilog = """\
+To avoid confusion with parsing command line arguments, 
+you can use 'm' or '_' (underscore) character instead of '-' (minus) 
+as first character of negative real.""",
     )
 
-    parser.add_argument("--resolution", metavar=("ReReso", "ImReso"),
-                        help = "complex plane resolution",
-                        type=PositiveInteger, nargs=2, default=(1024, 1024))
+    parser.add_argument(
+        "--resolution", metavar=("real", "imag"),
+        help="complex plane Resolution (positive integer)",
+        type=positiveInteger, nargs=2, default=(1024, 1024)
+    )
 
-    parser.add_argument("--extent", metavar=("ReMIN", "ReMAX", "ImMIN", "ImMax"),
-                        help = "complex plane extent",
-                        type=float, nargs=4, default=(-2.0, +1.0, -1.5, +1.5))
+    parser.add_argument(
+        "--extent", metavar = ("realMin","realMax","imagMin","imagMax"),
+        help = (
+            "complex plane extent (real number)."
+        ),
+        type=commandLineFloat,
+        nargs=4, action=ComplexPlaneExtentAction,
+        default=ComplexPlaneExtent(
+            realMin=-2.0, realMax=+1.0,
+            imagMin=-1.5, imagMax=+1.5
+        )
+    )
 
-    parser.add_argument('-v', '--verbose',
-                        help = 'increase verbosity',
-                        action='count', default=0)
+    parser.add_argument(
+        '-v', '--verbose', help='increase verbosity',
+        action='count', default=0
+    )
 
-    parser.add_argument('-o', '--output',
-                        help = "output file path",
-                        default='')
+    parser.add_argument(
+        '-o', '--output', default='',
+        help = "output file path (s.t. 'mandelbrot.png')"
+    )
 
     return parser
 

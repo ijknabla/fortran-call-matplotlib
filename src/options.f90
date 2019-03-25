@@ -6,20 +6,20 @@ module options
 
     implicit none
 
-    type,bind(C) :: c_options_t
-        integer(c_int) :: verbose         = 0
-        integer(c_int) :: resolution(2)   = 0
-        real(c_double) :: extent(4)       = 0.
-        integer(c_int) :: output_path_len = 0
-        type(c_ptr)    :: output_path     = C_NULL_PTR
-    end type c_options_t
-
     type options_t
         integer(c_int)                  :: verbose
         integer(c_int)                  :: resolution(2)
         real(c_double)                  :: extent(4)
         character(:,c_char),allocatable :: output_path
     end type options_t
+
+    type,bind(C) :: c_options_t
+        integer(c_int) :: verbose         = 0_c_int
+        integer(c_int) :: resolution(2)   = 0_c_int
+        real(c_double) :: extent(4)       = 0_c_double
+        integer(c_int) :: output_path_len = 0_c_int
+        type(c_ptr)    :: output_path     = C_NULL_PTR
+    end type c_options_t
 
     type auto_c_options_t
         type(c_options_t) :: contents
@@ -117,9 +117,9 @@ contains
         if ( parse_args(opts%contents) /= 0 ) then
             call check_python_error
         end if
-
+        
     end subroutine auto_c_options_method_parse_args
-
+    
     subroutine auto_c_options_method_finalize(self)
         type(auto_c_options_t),intent(inout) :: self
 
@@ -151,9 +151,9 @@ contains
             type(c_options_t),intent(in)  :: c_opts
             character(c_opts%output_path_len,c_char),pointer :: output_path
 
-            f_opts%verbose    = c_opts%verbose
-            f_opts%resolution = c_opts%resolution
-            f_opts%extent     = c_opts%extent
+            f_opts%verbose       = c_opts%verbose
+            f_opts%resolution(:) = c_opts%resolution(:)
+            f_opts%extent(:)     = c_opts%extent(:)
 
             call c_f_pointer(c_opts%output_path, output_path)
             f_opts%output_path = output_path
