@@ -20,21 +20,28 @@ program main
 
     call py_initialize
 
-110 call import_pymodules( ierr )
-    call check_error(ierr=ierr, line_no=110)
+200 call import_pymodules( ierr )
+    call check_error(ierr=ierr, line_no=200)
 
-    call set_argv
-    call parse_args(opts)
+210 call set_argv( ierr )
+    call check_error(ierr=ierr, line_no=210)
+
+220 call parse_args(opts, ierr)
+    call check_error(ierr=ierr, line_no=220)
+
     call set_logger_level(opts%verbose)
     call mandelbrot( &
         nx=opts%resolution(1), ny=opts%resolution(2), &
         extent = opts%extent,                         &
         convergence = convergence                     &
         )
-    call draw( &
-        opts%output_path,        &
-        opts%extent, convergence &
+
+230 call draw( &
+        opts%output_path,         &
+        opts%extent, convergence, &
+        ierr &
         )
+    call check_error(ierr=ierr, line_no=230)
 
     call py_finalize
 

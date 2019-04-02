@@ -76,35 +76,37 @@ contains
 
     end function arg_getter
 
-    subroutine set_argv()
+    subroutine set_argv(ierr)
 
         use options_api, only : &
             set_argv_from_callbacks
 
-        integer returncode
+        integer,intent(out) :: ierr
 
-        returncode = set_argv_from_callbacks( &
+        ierr = 0
+
+        ierr = set_argv_from_callbacks( &
             c_funloc(argc_getter   ), &
             c_funloc(arg_len_getter), &
             c_funloc(arg_getter    )  &
             )
-
-        if (returncode /= 0) then
-            call check_python_error
-        end if
+        if( ierr /= 0 ) return
 
     end subroutine set_argv
 
-    subroutine auto_c_options_method_parse_args(opts)
+    subroutine auto_c_options_method_parse_args(opts, ierr)
 
         use options_api, only : &
             parse_args
 
         class(auto_c_options_t),intent(inout) :: opts
+        integer,intent(out)                   :: ierr
 
-        if ( parse_args(opts%contents) /= 0 ) then
-            call check_python_error
-        end if
+        ierr = 0
+
+        ierr = parse_args(opts%contents)
+
+        if ( ierr /= 0 ) return
 
     end subroutine auto_c_options_method_parse_args
 
@@ -113,19 +115,30 @@ contains
         use options_api, only : &
             finalize_options_t
 
+        integer ierr
+
         type(auto_c_options_t),intent(inout) :: self
 
-        if (finalize_options_t(self%contents) /= 0) then
-            call check_python_error
+        ierr = finalize_options_t(self%contents)
+
+        if (ierr /= 0) then
+            call pyerr_print
+            stop 1
         end if
 
     end subroutine auto_c_options_method_finalize
 
-    subroutine parse_args(f_opts)
+    subroutine parse_args(f_opts, ierr)
         type(options_t),intent(out) :: f_opts
+        integer,intent(out)         :: ierr
+
         type(auto_c_options_t)      :: auto_c_opts
 
-        call auto_c_opts%parse_args
+        ierr = 0
+
+        call auto_c_opts%parse_args( ierr )
+        if ( ierr /= 0 ) return
+
         call assign(f_opts, auto_c_opts%contents)
 
     contains

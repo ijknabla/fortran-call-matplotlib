@@ -58,15 +58,4 @@ module python3
 
     end interface
 
-contains
-
-    subroutine check_python_error()
-        type(c_ptr) :: error_pyobject
-        error_pyobject = pyerr_occurred()
-        if ( c_associated(error_pyobject) ) then
-            call pyerr_print
-            stop 1
-        end if
-    end subroutine check_python_error
-    
 end module python3
