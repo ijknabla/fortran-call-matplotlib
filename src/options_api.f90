@@ -8,10 +8,12 @@ module options_api
     private
 
     public :: &
+        c_options_t, &
+        append_options_pyinittab, import_options_pymodule, &
         set_argv_from_callbacks, &
         parse_args, finalize_options_t
 
-    type,public,bind(C) :: c_options_t
+    type,bind(C) :: c_options_t
         integer(c_int) :: verbose         = 0_c_int
         integer(c_int) :: resolution(2)   = 0_c_int
         real(c_double) :: extent(4)       = 0_c_double
@@ -20,6 +22,15 @@ module options_api
     end type c_options_t
 
     interface
+
+        integer(c_int) function append_options_pyinittab() bind(C)
+            import c_int
+        end function append_options_pyinittab
+
+        integer(c_int) function import_options_pymodule() bind(C)
+            import c_int
+        end function import_options_pymodule
+
         integer(c_int) function set_argv_from_callbacks( &
             argv_getter, arg_len_getter, arg_getter ) bind(C)
             import c_int, c_funptr

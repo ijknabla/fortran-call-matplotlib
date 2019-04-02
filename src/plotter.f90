@@ -4,13 +4,12 @@ module plotter
     use iso_c_binding
     use python3
 
+    use plotter_api, only : &
+        append_plotter_pyinittab, import_plotter_pymodule
+
     implicit none
 
     interface
-
-        subroutine pyinit_plotter() &
-            bind(C, name="PyInit_plotter")
-        end subroutine pyinit_plotter
 
         integer(c_int) function draw_cython( &
             output_path, extent, shape, convergence) &
@@ -25,11 +24,6 @@ module plotter
     end interface
 
 contains
-
-    subroutine init_plotter()
-        call pyinit_plotter
-        call check_python_error
-    end subroutine init_plotter
 
     subroutine draw(output_path, extent, convergence)
         character(*,c_char),intent(in) :: output_path

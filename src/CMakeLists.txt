@@ -32,12 +32,14 @@ pyx2c(
 
 add_executable(mandelbrot
   python3.f90
-  python_modules.c
+  options_api.c
   options_api.f90
   ${OPTIONS_C}
   options.f90
   logger.f90
   mandelbrot.f90
+  plotter_api.c
+  plotter_api.f90
   ${PLOTTER_C}
   plotter.f90
   main.f90

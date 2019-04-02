@@ -4,7 +4,9 @@ module options
     use iso_c_binding
     use python3
 
-    use options_api, only : c_options_t
+    use options_api, only : &
+        c_options_t, &
+        append_options_pyinittab, import_options_pymodule
 
     implicit none
 
