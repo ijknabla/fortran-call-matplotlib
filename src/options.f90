@@ -4,6 +4,8 @@ module options
     use iso_c_binding
     use python3
 
+    use options_api, only : c_options_t
+
     implicit none
 
     type options_t
@@ -12,14 +14,6 @@ module options
         real(c_double)                  :: extent(4)
         character(:,c_char),allocatable :: output_path
     end type options_t
-
-    type,bind(C) :: c_options_t
-        integer(c_int) :: verbose         = 0_c_int
-        integer(c_int) :: resolution(2)   = 0_c_int
-        real(c_double) :: extent(4)       = 0_c_double
-        integer(c_int) :: output_path_len = 0_c_int
-        type(c_ptr)    :: output_path     = C_NULL_PTR
-    end type c_options_t
 
     type auto_c_options_t
         type(c_options_t) :: contents
@@ -34,14 +28,6 @@ module options
         subroutine pyinit_options() &
             bind(C, name="PyInit_options")
         end subroutine pyinit_options
-
-        integer(c_int) function set_argv_from_callbacks( &
-            argv_getter, arg_len_getter, arg_getter ) bind(C)
-            import c_int, c_funptr
-            type(c_funptr),value :: argv_getter
-            type(c_funptr),value :: arg_len_getter
-            type(c_funptr),value :: arg_getter
-        end function set_argv_from_callbacks
 
     end interface
 
@@ -90,6 +76,9 @@ contains
 
     subroutine set_argv()
 
+        use options_api, only : &
+            set_argv_from_callbacks
+
         integer returncode
 
         returncode = set_argv_from_callbacks( &
@@ -105,31 +94,24 @@ contains
     end subroutine set_argv
 
     subroutine auto_c_options_method_parse_args(opts)
+
+        use options_api, only : &
+            parse_args
+
         class(auto_c_options_t),intent(inout) :: opts
-        interface
-            integer(c_int) function parse_args(opts) &
-                bind(C)
-                import c_int, c_options_t
-                type(c_options_t),intent(inout) :: opts
-            end function parse_args
-        end interface
 
         if ( parse_args(opts%contents) /= 0 ) then
             call check_python_error
         end if
-        
-    end subroutine auto_c_options_method_parse_args
-    
-    subroutine auto_c_options_method_finalize(self)
-        type(auto_c_options_t),intent(inout) :: self
 
-        interface
-            integer(c_int) function finalize_options_t(opts) &
-                bind(C)
-                import c_int, c_options_t
-                type(c_options_t),intent(inout) :: opts
-            end function finalize_options_t
-        end interface
+    end subroutine auto_c_options_method_parse_args
+
+    subroutine auto_c_options_method_finalize(self)
+
+        use options_api, only : &
+            finalize_options_t
+
+        type(auto_c_options_t),intent(inout) :: self
 
         if (finalize_options_t(self%contents) /= 0) then
             call check_python_error

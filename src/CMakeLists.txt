@@ -33,6 +33,7 @@ pyx2c(
 add_executable(mandelbrot
   python3.f90
   python_modules.c
+  options_api.f90
   ${OPTIONS_C}
   options.f90
   logger.f90
