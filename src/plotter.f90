@@ -9,23 +9,12 @@ module plotter
 
     implicit none
 
-    interface
-
-        integer(c_int) function draw_cython( &
-            output_path, extent, shape, convergence) &
-            bind(C, name="draw")
-            import c_ptr, c_double, c_int
-            type(c_ptr)   ,value      :: output_path
-            real(c_double),intent(in) :: extent(4)
-            integer(c_int),intent(in) :: shape(2)
-            integer(c_int),intent(in) :: convergence(:,:)
-        end function draw_cython
-
-    end interface
-
 contains
 
     subroutine draw(output_path, extent, convergence, ierr)
+
+        use plotter_api, only : draw_cyimpl => draw
+
         character(*,c_char),intent(in) :: output_path
         real(c_double),intent(in)      :: extent(4)
         integer(c_int),intent(in)      :: convergence(:,:)
@@ -43,7 +32,7 @@ contains
             integer,intent(out)                   :: ierr
 
             ierr = 0
-            ierr = draw_cython( &
+            ierr = draw_cyimpl( &
                 c_loc(null_terminated), &
                 extent, shape(convergence), convergence)
             if( ierr /= 0 ) return

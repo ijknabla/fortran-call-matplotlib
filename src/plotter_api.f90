@@ -8,7 +8,8 @@ module plotter_api
     private
 
     public :: &
-        append_plotter_pyinittab, import_plotter_pymodule
+        append_plotter_pyinittab, import_plotter_pymodule, &
+        draw
 
     interface
 
@@ -19,6 +20,15 @@ module plotter_api
         integer(c_int) function import_plotter_pymodule() bind(C)
             import c_int
         end function import_plotter_pymodule
+
+        integer(c_int) function draw( &
+            output_path, extent, shape, convergence) bind(C)
+            import c_ptr, c_double, c_int
+            type(c_ptr)   ,value      :: output_path
+            real(c_double),intent(in) :: extent(4)
+            integer(c_int),intent(in) :: shape(2)
+            integer(c_int),intent(in) :: convergence(:,:)
+        end function draw
 
     end interface
 

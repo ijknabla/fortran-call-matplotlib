@@ -10,6 +10,14 @@ module options
 
     implicit none
 
+    private
+
+    public :: options_t
+
+    public :: &
+        append_options_pyinittab, import_options_pymodule, &
+        set_argv, parse_args
+
     type options_t
         integer(c_int)                  :: verbose
         integer(c_int)                  :: resolution(2)
@@ -24,14 +32,6 @@ module options
             auto_c_options_method_parse_args
         final     :: auto_c_options_method_finalize
     end type auto_c_options_t
-
-    interface
-
-        subroutine pyinit_options() &
-            bind(C, name="PyInit_options")
-        end subroutine pyinit_options
-
-    end interface
 
 contains
 
