@@ -1,8 +1,8 @@
 
 module mandelbrot_mod
 
-    use logger
     use iso_c_binding
+    use pylogger
 
     implicit none
 
@@ -31,7 +31,10 @@ contains
         im_min = extent(3)
         im_max = extent(4)
 
-        call info("begin mandelbrot calculation")
+        call info( &
+            "mandelbrot",                  &
+            "begin mandelbrot calculation" &
+            )
 
         allocate( convergence(nx, ny) )
 
@@ -50,7 +53,10 @@ contains
 
         !$omp end parallel
 
-        call info("end   mandelbrot calculation")
+        call info( &
+            "mandelbrot",                  &
+            "end   mandelbrot calculation" &
+            )
 
     contains
 

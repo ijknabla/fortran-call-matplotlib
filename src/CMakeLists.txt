@@ -30,14 +30,31 @@ pyx2c(
   ${PLOTTER_C}
   )
 
+set(PYLOGGER_PYX ${CMAKE_CURRENT_SOURCE_DIR}/pylogger.pyx)
+set(PYLOGGER_C   ${CMAKE_CURRENT_BINARY_DIR}/pylogger.c  )
+set(PYLOGGER_H   ${CMAKE_CURRENT_BINARY_DIR}/pylogger.h  )
+pyx2c(
+  ${PYLOGGER_PYX}
+  ${PYLOGGER_C}
+  )
+
 add_executable(mandelbrot
+
   python3.f90
+
+  pylogger_api.c
+  pylogger_api.f90
+  ${PYLOGGER_C}
+  pylogger.f90
+  logger.f90
+
   options_api.c
   options_api.f90
   ${OPTIONS_C}
   options.f90
-  logger.f90
+
   mandelbrot.f90
+
   plotter_api.c
   plotter_api.f90
   ${PLOTTER_C}
@@ -62,7 +79,7 @@ if(OpenMP_FOUND)
     )
   target_link_libraries(mandelbrot
     ${OpenMP_Fortran_LIB_NAMES}
-  )
+    )
 endif()
 
 set_target_properties(mandelbrot

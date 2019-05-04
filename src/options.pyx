@@ -158,6 +158,23 @@ as first character of negative real.""",
 
     return parser
 
+def set_verbosity(verbosity):
+    import logging
+    rootLogger       = logging.getLogger()
+    matplotlibLogger = logging.getLogger("matplotlib")
+    handler          = logging.StreamHandler()
+
+    rootLogger.setLevel(logging.DEBUG)
+    matplotlibLogger.setLevel(logging.WARNING)
+    rootLogger.addHandler(handler)
+
+    if   verbosity <= 0:
+        handler.setLevel(logging.WARNING)
+    elif verbosity == 1:
+        handler.setLevel(logging.INFO   )
+    else: # 2 <= verbosity:
+        handler.setLevel(logging.DEBUG  )
+
 cdef public api int parse_args(
     options_t* opts,
 ) except -1 :
@@ -183,6 +200,8 @@ cdef public api int parse_args(
 
     for i in range(len_output_path):
         opts.output_path[i] = output_path[i]
+
+    set_verbosity(args.verbose)
 
 cdef public api int finalize_options_t(
     options_t* opts,

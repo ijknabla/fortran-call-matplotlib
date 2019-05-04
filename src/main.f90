@@ -49,8 +49,9 @@ contains
 
     subroutine append_pyinittabs(ierr)
 
-        use options, only : append_options_pyinittab
-        use plotter, only : append_plotter_pyinittab
+        use options , only : append_options_pyinittab
+        use plotter , only : append_plotter_pyinittab
+        use pylogger, only : append_pylogger_pyinittab
 
         integer,intent(out) :: ierr
 
@@ -62,12 +63,16 @@ contains
         ierr = append_plotter_pyinittab()
         if( ierr /= 0 ) return
 
+        ierr = append_pylogger_pyinittab()
+        if( ierr /= 0 ) return
+
     end subroutine append_pyinittabs
 
     subroutine import_pymodules( ierr )
 
-        use options, only : import_options_pymodule
-        use plotter, only : import_plotter_pymodule
+        use options , only : import_options_pymodule
+        use plotter , only : import_plotter_pymodule
+        use pylogger, only : import_pylogger_pymodule
 
         integer,intent(out) :: ierr
 
@@ -77,6 +82,9 @@ contains
         if( ierr /= 0 ) return
 
         ierr = import_plotter_pymodule()
+        if( ierr /= 0 ) return
+
+        ierr = import_pylogger_pymodule()
         if( ierr /= 0 ) return
 
     end subroutine import_pymodules
