@@ -69,3 +69,9 @@ set_target_properties(mandelbrot
   PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
   )
+
+install(
+  TARGETS mandelbrot
+  RUNTIME
+  DESTINATION bin
+  )
